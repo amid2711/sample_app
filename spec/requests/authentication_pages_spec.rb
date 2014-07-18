@@ -79,6 +79,9 @@ describe "Authentication" do
 
     describe "for non-signed-in users" do
       let(:user) { FactoryGirl.create(:user) }
+
+      it { should_not have_link('Profile', href: user_path(user)) }
+      it { should_not have_link('Settings', href: edit_user_path(user))}
       
       describe "when attempting to visit a protected page" do
         before do
@@ -94,6 +97,22 @@ describe "Authentication" do
             expect(page).to have_title('Edit user')
           end
         end
+
+        describe "when signing in again" do
+          before do
+            #delete signout_path
+            Capybara.current_session.driver.delete signout_path
+            visit signin_path
+            print page.html
+            fill_in "Email", with: user.email
+            fill_in "Password", with: user.password
+            click_button "Sign in"
+          end
+
+          it "should render the default (profile) page" do
+            expect(page).to have_title(user.name)
+          end
+        end
       end
     end    
 
@@ -106,6 +125,34 @@ describe "Authentication" do
       describe "submitting a DELETE request to the Users#destroy action" do
         before { delete user_path(user) }
         specify { expect(response).to redirect_to(root_url) }
+      end
+    end
+
+    describe "as valid user" do
+      let(:user) { FactoryGirl.create(:user) }
+      before { sign_in user, no_capybara: true }
+
+      describe "submitting a GET request to the Users#new action" do
+        before { get new_user_path }
+        specify { expect(response.body).not_to match(full_title('Sign up')) }
+        specify { expect(response).to redirect_to(root_url) }
+      end
+
+      describe "submitting a POST request to the Users#create action" do
+        let(:another_user) { FactoryGirl.create(:user, email: "another_user@example.com") }
+        before { post users_path, user: another_user.attributes }
+        specify { expect(response).to redirect_to(root_url) }
+      end
+    end
+
+    describe "as admin" do
+      let(:admin) { FactoryGirl.create(:admin) }
+      before { sign_in admin, no_capybara: true }
+
+      it "should not be able to delete itself" do
+        expect do
+          delete user_path(admin)
+        end.not_to change(User, :count)
       end
     end
   end
