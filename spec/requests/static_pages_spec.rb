@@ -20,8 +20,8 @@ describe "Static pages" do
     describe "for signed-in users" do
       let(:user) {FactoryGirl.create(:user) }
       before do
-        FactoryGirl.create(:micropost, user: user, content: "Lorem ipsum")
-        FactoryGirl.create(:micropost, user: user, content: "Dolor sit amet")
+        FactoryGirl.create(:micropost, user: user, content: "Lorem_ip_sum")
+        FactoryGirl.create(:micropost, user: user, content: "Dolor_sit_amet")
         sign_in user
         visit root_path
       end
@@ -38,7 +38,7 @@ describe "Static pages" do
       describe "pagination" do
         before(:all) do
           Micropost.delete_all
-          30.times {FactoryGirl.create(:micropost, user: user, content: "Simply text")}
+          30.times {FactoryGirl.create(:micropost, user: user, content: "Simply_text")}
         end
         after(:all) do
           User.delete_all
@@ -47,7 +47,7 @@ describe "Static pages" do
 
         it "should list each micropost" do
           Micropost.paginate(page:1).each do |micropost|
-            expect(page).to have_selector('li', text: "Simply text")
+            expect(page).to have_selector('li', text: "Simply_text")
           end
         end
       end
