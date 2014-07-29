@@ -42,4 +42,22 @@ describe "MicropostPages" do
       end
     end
   end
+
+  describe "microposts list" do
+    let(:admin) { FactoryGirl.create(:admin) }    
+
+    describe "should not have link \"delete\" for another user" do   
+      let!(:m1) { FactoryGirl.create(:micropost, user: admin, content: "Foo") }   
+      before { visit user_path(admin) }
+      it { should_not have_link('delete', href: micropost_path(m1)) }
+    end
+
+    describe "should have link \"delete\" for itself " do
+      let!(:m1) { FactoryGirl.create(:micropost, user: user, content: "Foo") }
+      before do
+        visit user_path(user)
+      end
+      it { should have_link('delete', href: micropost_path(m1)) }
+    end
+  end
 end

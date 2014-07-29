@@ -1,7 +1,18 @@
 <%= form_for(@micropost) do |f| %>
   <%= render 'shared/error_messages', object: f.object %>
   <div class="field">
-    <%= f.text_area :content, placeholder: "Compose new micropost..." %>
+    <%= f.text_area :content, placeholder: "Compose new micropost...", maxlength: "140" %>
+    <ul class="inline">
+      <li>Characters left:</li><li id="test"></li>
+    </ul>  
   </div>
   <%= f.submit "Post", class: "btn btn-large btn-primary" %>
-<% end %>
+<% end %>       
+
+<script type="text/javascript">
+  var text = document.getElementById('micropost_content'), count = document.getElementById('test');text.onkeyup = function () {
+    var max = this.maxLength;
+    count.innerHTML = max - this.value.length;
+  };
+</script>
+

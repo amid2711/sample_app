@@ -31,6 +31,26 @@ describe "Static pages" do
           expect(page).to have_selector("li##{item.id}", text: item.content)
         end
       end
+
+      it { should have_selector("aside", text: "#{user.microposts.count} #{"micropost".pluralize(user.microposts.count)}") } 
+                                              #pluralize(user.microposts.count, "micropost")
+
+      describe "pagination" do
+        before(:all) do
+          Micropost.delete_all
+          30.times {FactoryGirl.create(:micropost, user: user, content: "Simply text")}
+        end
+        after(:all) do
+          User.delete_all
+          Micropost.delete_all
+        end
+
+        it "should list each micropost" do
+          Micropost.paginate(page:1).each do |micropost|
+            expect(page).to have_selector('li', text: "Simply text")
+          end
+        end
+      end
     end
   end
 
